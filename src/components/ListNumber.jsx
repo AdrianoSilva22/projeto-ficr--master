@@ -1,16 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Eye from "../assets/eye.png";
 import "../styles/ListNumber.css";
 
 function ListNumber() {
-  const events = [];
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
-  const censorPhone = (phone) => {
-    const ddd = phone.slice(1, 4);
-    const firstFour = phone.slice(5, 9);
+  useEffect(() => {
+    const fetchNumbers = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5153/Contact?PageSize=20&PageNumber=0&Sort=asc"
+        );
+        setData(response.data.list);
+      } catch (error) {
+        console.error("Erro ao buscar números:", error);
+      }
+    };
 
-    const maskedRemaining = phone.slice(9).replace(/./g, "*");
-    return `(${ddd} ${firstFour}-${maskedRemaining}`;
+    fetchNumbers();
+  }, []);
+
+  const formatPhone = (phone) => {
+    const ddd = phone.slice(0, 3);
+    const firstFour = phone.slice(3, 9);
+    const lastFour = phone.slice(9,13);
+    return `(${ddd}) ${firstFour}-${lastFour}`;
+  };
+
+  const handleViewDetails = (id) => {
+    navigate(`/numberDetails`, { state: { id } });
   };
 
   return (
@@ -20,15 +41,12 @@ function ListNumber() {
         <div className="indice linha">
           <span className="celula">Nome</span>
           <span className="celula">Número</span>
-          <span className="celula">Detalhes</span>
         </div>
-        {events.map((event) => (
-          <div key={event.id} className="linha">
-            <span className="celula">{event.title}</span>
-            <span className="celula">{censorPhone(event.phone)}</span>
-            <span className="celula">
-              <img src={Eye} alt="Ver detalhes" />
-            </span>
+
+        {data.map((contact) => (
+          <div key={contact.id} className="linha">
+            <span className="celula">{contact.name}</span>
+            <span className="celula">{formatPhone(contact.number)}</span>
           </div>
         ))}
       </div>

@@ -12,16 +12,16 @@ function Header() {
         </Link>
       </div>
       <div className="header-button">
-        <Link to="/RegisterEvent">
+        <Link to="/registerEvent">
           <button className="botao-cabecalho">Criar evento</button>
         </Link>
-        <Link to="/RegisterNumber">
+        <Link to="/numeroRegister">
         <button className="botao-cabecalho">Add número</button>
         </Link>
-        <Link to="/ListNumber">
+        <Link to="/listagemNumeros">
         <button className="botao-cabecalho">Lista de números</button>
         </Link>
-        <Link to="/ListagemEvents">
+        <Link to="/listagemEvents">
           <button className="botao-cabecalho">Lista de eventos</button>
         </Link>
       </div>

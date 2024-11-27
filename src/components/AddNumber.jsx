@@ -1,43 +1,34 @@
 import "../styles/AddNumber.css";
 import React, { useState } from "react";
+import InputMask from "react-input-mask";
 
 function AddNumber() {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  const handleInputChange = (event) => {
-    const { value } = event.target;
-
-    const digits = value.replace(/\D/g, "");
-
-    let formattedPhoneNumber = digits;
-    if (digits.length > 2) {
-      formattedPhoneNumber = `(${digits.substring(0, 2)}`;
-      if (digits.length > 7) {
-        formattedPhoneNumber += `) ${digits.substring(2, 7)}-${digits.substring(
-          7,
-          11
-        )}`;
-      } else if (digits.length > 2) {
-        formattedPhoneNumber += `) ${digits.substring(2)}`;
-      }
-    }
-
-    setPhoneNumber(formattedPhoneNumber);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!/^\(\d{2}\) \d{5}-\d{4}$/.test(phoneNumber)) {
-      alert("Número de telefone inválido. Use o formato (XX) XXXXX-XXXX");
+    // Remove a máscara para obter apenas os números
+    const plainPhoneNumber = phoneNumber.replace(/\D/g, "");
+
+    // Validação do formato
+    if (!/^\d{12}$/.test(plainPhoneNumber)) {
+      alert("Número de telefone inválido. Use o formato +55 (XX) XXXX-XXXX");
       return;
     }
+
     try {
-      const response = await fetch("/api/add-number", {
+      const response = await fetch("http://localhost:5153/Contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phoneNumber }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+        },
+        body: JSON.stringify({
+          name: name.trim(), // Nome sem espaços extras
+          number: `+${plainPhoneNumber}`, // Adiciona o `+` manualmente
+        }),
       });
 
       if (response.ok) {
@@ -45,17 +36,20 @@ function AddNumber() {
         setName("");
         setPhoneNumber("");
       } else {
-        console.error("Erro ao cadastrar número de telefone");
+        const errorData = await response.json();
+        console.error("Erro ao cadastrar número de telefone:", errorData);
+        alert("Erro ao cadastrar número de telefone. Tente novamente.");
       }
     } catch (error) {
       console.error("Erro ao conectar com o servidor:", error);
+      alert("Erro de conexão com o servidor. Tente novamente.");
     }
   };
 
   return (
     <div className="AddNumber">
       <form onSubmit={handleSubmit}>
-      <h1>Cadastro de número</h1>
+        <h1>Cadastro de número</h1>
         <label>
           Nome:
           <input
@@ -67,13 +61,12 @@ function AddNumber() {
         </label>
         <label>
           Número de Telefone:
-          <input
-            type="tel"
+          <InputMask
+            mask="+55 (99) 9999-9999"
             value={phoneNumber}
-            onChange={handleInputChange}
+            onChange={(e) => setPhoneNumber(e.target.value)}
             required
-            maxLength={15}
-            placeholder="(XX) XXXXX-XXXX"
+            placeholder="+55 (XX) XXXX-XXXX"
           />
         </label>
         <button type="submit" className="botao-form">

@@ -8,8 +8,7 @@ export const ListagemEventos = () => {
     <div className="layout">
       <Header />
       <div className="content">
-        {/* <MainEvent /> */}
-        <ListNumber />
+        <MainEvent />
       </div>
       <Footer />
     </div>
